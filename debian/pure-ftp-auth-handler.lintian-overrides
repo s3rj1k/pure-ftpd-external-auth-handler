@@ -1,0 +1,3 @@
+pure-ftp-auth-handler: hardening-no-relro usr/bin/ftp-auth-handler
+pure-ftp-auth-handler: hardening-no-pie usr/bin/ftp-auth-handler
+pure-ftp-auth-handler: binary-without-manpage usr/bin/ftp-auth-handler

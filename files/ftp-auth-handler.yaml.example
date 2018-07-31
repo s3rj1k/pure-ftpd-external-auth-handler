@@ -1,0 +1,12 @@
+Database:
+  Name: "ftp"
+  User: "u_backup"
+  Password: "******"
+  Host: "db.remote.org"
+  Port: 3306
+Table:
+  Name: "users"
+Accounts:
+  Path: "/dev/shm/accounts.db"
+Log:
+  Path: "/var/log/ftp-auth-handler.log"

@@ -1,0 +1,12 @@
+Source: pure-ftp-auth-handler
+Section: net
+Priority: optional
+Maintainer: s3rj1k <evasive.gyron@gmail.com>
+Build-Depends: debhelper (>= 9), golang-1.10
+Standards-Version: 3.9.6
+
+Package: pure-ftp-auth-handler
+Architecture: amd64
+Depends: ${shlibs:Depends}, pure-ftpd | pure-ftpd-mysql | pure-ftpd-postgresql | pure-ftpd-ldap
+Description: Pure-FTPd external authentication handler
+ This package contains Pure-FTPd AuthD custom authentication handler.

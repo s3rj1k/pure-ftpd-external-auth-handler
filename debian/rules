@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+DATE=$(shell date +%Y%m%d)
+PACKAGEVERSION=$(DATE)
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	dh_install tmp/ftp-auth-handler usr/bin
+	dh_install files/ftp-auth-handler.yaml.example etc/
+
+override_dh_gencontrol:
+	dh_gencontrol -- -v$(PACKAGEVERSION)

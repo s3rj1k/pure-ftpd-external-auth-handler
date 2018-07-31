@@ -1,0 +1,16 @@
+[Unit]
+Description=Pure-FTPd AuthD Server
+After=pure-ftpd.service
+BindTo=pure-ftpd.service
+
+[Service]
+Type=forking
+ExecStartPre=/bin/rm -f /var/run/pure-ftpd-authd.pid
+ExecStart=/usr/sbin/pure-authd -B -p /var/run/pure-ftpd-authd.pid \
+                                  -s /var/run/pure-ftpd.sock \
+                                  -r /usr/bin/ftp-auth-handler
+PIDFile=/var/run/pure-ftpd-authd.pid
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

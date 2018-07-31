@@ -1,0 +1,32 @@
+[Unit]
+Description=Pure-FTPd Server
+After=network.target
+BindTo=pure-ftpd-authd.service
+
+[Service]
+Type=forking
+ExecStartPre=/bin/rm -f /var/run/pure-ftpd.pid
+ExecStart=/usr/sbin/pure-ftpd --allowdotfiles \
+                              --altlog=clf:/var/log/pure-ftpd/transfer.log \
+                              --chrooteveryone \
+                              --clientcharset=utf-8 \
+                              --createhomedir \
+                              --customerproof \
+                              --daemonize \
+                              --dontresolve \
+                              --fscharset=utf-8 \
+                              --ipv4only \
+                              --login=extauth:/var/run/pure-ftpd.sock \
+                              --maxclientsnumber=10000 \
+                              --maxclientsperip=50 \
+                              --maxidletime=120 \
+                              --minuid=1000 \
+                              --noanonymous \
+                              --notruncate \
+                              --verboselog \
+                              --pidfile /var/run/pure-ftpd.pid
+PIDFile=/var/run/pure-ftpd.pid
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
