@@ -6,9 +6,7 @@ import (
 )
 
 func isIPInList(remoteIP net.IP, list string) bool {
-
 	for _, value := range strings.Split(list, ",") {
-
 		if net.ParseIP(value).Equal(remoteIP) {
 			return true
 		}

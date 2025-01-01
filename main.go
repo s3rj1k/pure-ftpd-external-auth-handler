@@ -1,13 +1,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 )
 
+const configPath = "/etc/ftp-auth-handler.yaml"
+
+var (
+	cmdGetUserAccounts bool
+)
+
 func main() {
+	flag.BoolVar(&cmdGetUserAccounts, "get-user-accounts", false, "fetch user accounts from remote database")
+	flag.Parse()
 
 	// read configuration file
 	cfg, err := readConfig(configPath)
@@ -25,7 +34,6 @@ func main() {
 	log.SetOutput(logFD)
 
 	if cmdGetUserAccounts {
-
 		accounts, err := getAccountsConfigFromRemoteDB(cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name, cfg.Table.Name)
 		if err != nil {
 			log.Fatal(err)
@@ -37,15 +45,13 @@ func main() {
 				log.Fatal(err)
 			}
 		}
-
 	} else {
-
 		payload, err := genAuthenticationPayload(cfg.Accounts.Path)
-		fmt.Println(strings.Join(payload, "\n"))
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		fmt.Println(strings.Join(payload, "\n"))
 	}
 
 	os.Exit(0)

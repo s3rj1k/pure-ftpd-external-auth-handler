@@ -6,23 +6,22 @@ import (
 	"strings"
 )
 
-func isAuthorized(auth authorizationData, accounts map[string]accountConfig) (bool, error) {
-
+func isAuthorized(auth AuthorizationData, accounts map[string]AccountConfig) (bool, error) {
 	account, ok := accounts[auth.UserName]
 	if !ok {
-		return false, fmt.Errorf("account \"%s\" does not exist", auth.UserName)
+		return false, fmt.Errorf("account %q does not exist", auth.UserName)
 	}
 
 	ok = checkPasswordHash(auth.Password, account.Password)
 	if !ok {
-		return false, fmt.Errorf("password for \"%s\" is wrong", auth.UserName)
+		return false, fmt.Errorf("password for %q is wrong", auth.UserName)
 	}
 
 	// if list is empty, skip check
 	if len(strings.TrimSpace(account.AuthorizedClientIPs)) != 0 {
 		// is authorized remote IP
 		if !isIPInList(auth.RemoteIP, account.AuthorizedClientIPs) {
-			return false, fmt.Errorf("remote IP \"%s\" for \"%s\" not in authorized list", auth.RemoteIP, auth.UserName)
+			return false, fmt.Errorf("remote IP %q for %q not in authorized list", auth.RemoteIP, auth.UserName)
 		}
 	}
 
@@ -30,13 +29,13 @@ func isAuthorized(auth authorizationData, accounts map[string]accountConfig) (bo
 	if len(strings.TrimSpace(account.RefuzedClientIPs)) != 0 {
 		// is denied remote IP
 		if isIPInList(auth.RemoteIP, account.RefuzedClientIPs) {
-			return false, fmt.Errorf("remote IP \"%s\" for \"%s\" in denied list", auth.RemoteIP, auth.UserName)
+			return false, fmt.Errorf("remote IP %q for %q in denied list", auth.RemoteIP, auth.UserName)
 		}
 	}
 
 	// user UID/GID must be greater that 1000
 	if account.UID < 1000 || account.GID < 1000 {
-		return false, fmt.Errorf("UID/GID for \"%s\" is lesser than 1000", auth.UserName)
+		return false, fmt.Errorf("UID/GID for %q is lesser than 1000", auth.UserName)
 	}
 
 	fi, err := os.Lstat(account.HomeDirectory)
@@ -47,19 +46,19 @@ func isAuthorized(auth authorizationData, accounts map[string]accountConfig) (bo
 	switch mode := fi.Mode(); {
 	// deny if regular file
 	case mode.IsRegular():
-		return false, fmt.Errorf("home dir for \"%s\" is file", auth.UserName)
+		return false, fmt.Errorf("home dir for %q is file", auth.UserName)
 	// deny if symlink
 	case mode&os.ModeSymlink != 0:
-		return false, fmt.Errorf("home dir for \"%s\" is symlink", auth.UserName)
+		return false, fmt.Errorf("home dir for %q is symlink", auth.UserName)
 	// deny if named pipe
 	case mode&os.ModeNamedPipe != 0:
-		return false, fmt.Errorf("home dir for \"%s\" is named pipe", auth.UserName)
+		return false, fmt.Errorf("home dir for %q is named pipe", auth.UserName)
 	// deny if device
 	case mode&os.ModeDevice != 0:
-		return false, fmt.Errorf("home dir for \"%s\" is device", auth.UserName)
+		return false, fmt.Errorf("home dir for %q is device", auth.UserName)
 	// deny if socket
 	case mode&os.ModeSocket != 0:
-		return false, fmt.Errorf("home dir for \"%s\" is socket", auth.UserName)
+		return false, fmt.Errorf("home dir for %q is socket", auth.UserName)
 	}
 
 	// home_dir must be in allowed path prefixes list
@@ -70,11 +69,10 @@ func isAuthorized(auth authorizationData, accounts map[string]accountConfig) (bo
 		}
 	}
 
-	return false, fmt.Errorf("\"%s\" not authorized", auth.UserName)
+	return false, fmt.Errorf("%q not authorized", auth.UserName)
 }
 
 func genAuthenticationPayload(path string) ([]string, error) {
-
 	out := make([]string, 0)
 
 	auth, err := getPureFTPdAuthData()

@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
-type appConfig struct {
+type AppConfig struct {
 	Database struct {
 		Name     string `yaml:"Name"`
 		User     string `yaml:"User"`
@@ -27,21 +27,18 @@ type appConfig struct {
 	} `yaml:"Log"`
 }
 
-func readConfig(file string) (appConfig, error) {
+func readConfig(file string) (AppConfig, error) {
+	var cfg AppConfig
 
-	var cfg appConfig
-
-	f, err := ioutil.ReadFile(filepath.Clean(file))
+	f, err := os.ReadFile(filepath.Clean(file))
 	if err != nil {
-		return appConfig{}, fmt.Errorf("failed to read application config: %s", err.Error())
+		return AppConfig{}, fmt.Errorf("failed to read application config: %w", err)
 	}
 
 	err = yaml.Unmarshal(f, &cfg)
 	if err != nil {
-		return appConfig{}, fmt.Errorf("failed to parse application config: %s", err.Error())
+		return AppConfig{}, fmt.Errorf("failed to parse application config: %w", err)
 	}
-
-	// Below default values for config
 
 	if len(cfg.Database.Name) == 0 {
 		cfg.Database.Name = "ftp"

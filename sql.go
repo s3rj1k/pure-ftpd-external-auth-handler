@@ -10,7 +10,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-type accountConfig struct {
+type AccountConfig struct {
 	UserName               string
 	Password               string
 	UID                    int64
@@ -33,8 +33,7 @@ SELECT
 	AuthorizedClientIPs, RefuzedClientIPs
 FROM`
 
-func getAccountsConfigFromRemoteDB(user, password, host string, port int, database, table string) (map[string]accountConfig, error) {
-
+func getAccountsConfigFromRemoteDB(user, password, host string, _ int /*port*/, database, table string) (map[string]AccountConfig, error) {
 	config := mysql.NewConfig()
 
 	config.User = user
@@ -49,26 +48,27 @@ func getAccountsConfigFromRemoteDB(user, password, host string, port int, databa
 
 	db, err := sql.Open("mysql", config.FormatDSN())
 	if err != nil {
-		return map[string]accountConfig{}, fmt.Errorf("failed to connect to remote DB: %s", err.Error())
+		return map[string]AccountConfig{}, fmt.Errorf("failed to connect to remote DB: %w", err)
 	}
 	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		return map[string]accountConfig{}, fmt.Errorf("failed to ping remote DB server: %s", err.Error())
+		return map[string]AccountConfig{}, fmt.Errorf("failed to ping remote DB server: %w", err)
 	}
 
 	results, err := db.Query(fmt.Sprintf("%s %s", sqlQuery, table))
 	if err != nil {
-		return map[string]accountConfig{}, fmt.Errorf("failed to query remote DB server: %s", err.Error())
+		return map[string]AccountConfig{}, fmt.Errorf("failed to query remote DB server: %w", err)
 	}
 
-	records := make(map[string]accountConfig)
+	records := make(map[string]AccountConfig)
 
 	for results.Next() {
-
-		var record accountConfig
-		var err error
+		var (
+			record AccountConfig
+			err    error
+		)
 
 		err = results.Scan(
 			&record.UserName,
@@ -84,7 +84,7 @@ func getAccountsConfigFromRemoteDB(user, password, host string, port int, databa
 			&record.AuthorizedClientIPs,
 			&record.RefuzedClientIPs)
 		if err != nil {
-			return map[string]accountConfig{}, fmt.Errorf("failed to parse returned table raw from remote DB server: %s", err.Error())
+			return map[string]AccountConfig{}, fmt.Errorf("failed to parse returned table raw from remote DB server: %w", err)
 		}
 
 		// sanitizing
@@ -101,7 +101,7 @@ func getAccountsConfigFromRemoteDB(user, password, host string, port int, databa
 
 		record.Password, err = hashPassword(record.Password)
 		if err != nil {
-			return map[string]accountConfig{}, fmt.Errorf("failed to hash account password: %s", err.Error())
+			return map[string]AccountConfig{}, fmt.Errorf("failed to hash account password: %w", err)
 		}
 
 		records[record.UserName] = record

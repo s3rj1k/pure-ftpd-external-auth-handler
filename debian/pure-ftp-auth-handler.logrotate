@@ -1,9 +1,0 @@
-/var/log/ftp-auth-handler.log {
-  size 10M
-  missingok
-  rotate 3
-  compress
-  delaycompress
-  notifempty
-  create 666 root adm
-}
